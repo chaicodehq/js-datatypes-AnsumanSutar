@@ -29,4 +29,21 @@
  */
 export function formatChaiMenu(items) {
   // Your code here
+  if (!Array.isArray(items) || items.length== 0) return "";
+
+  const filtered = items.filter(item => 
+    {
+      const validateName = typeof item.name == "string" && item.name.trim().length > 0;
+      const validatePrice = typeof item.price == "number" && item.price > 0;
+      return validateName && validatePrice;
+    })
+
+    const formatedString = filtered.map(item => {
+      const name = item.name.toUpperCase();
+      return `${name} - Rs.${item.price}`;
+    });
+
+    return formatedString.join(" | ")
 }
+
+console.log(formatChaiMenu([{ name: "masala chai", price: 15 }, { name: "samosa", price: 12 }]));
