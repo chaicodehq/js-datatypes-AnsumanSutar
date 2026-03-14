@@ -48,6 +48,8 @@ export function generateLocalPass(passenger) {
   }
 
   const { name, from, to, classType } = passenger;
+  //Destructuring is like taking each item out and putting it directly on the table,
+  //so you can use them without opening the suitcase again.
 
   //validation
   if (

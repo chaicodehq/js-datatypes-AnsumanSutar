@@ -40,6 +40,69 @@
  *   generateReportCard({ name: "Priya", marks: { maths: 35, science: 28 } })
  *   // => { name: "Priya", totalMarks: 63, percentage: 31.5, grade: "F", ... }
  */
+
 export function generateReportCard(student) {
-  // Your code here
+  // Validation
+  if (!student || typeof student !== "object") return null;
+  if (!student.name || typeof student.name !== "string" || student.name.trim() === "") return null;
+  if (!student.marks || typeof student.marks !== "object" || Object.keys(student.marks).length === 0) return null;
+
+  // Validate marks
+  for (const mark of Object.values(student.marks)) {
+    if (typeof mark !== "number" || mark < 0 || mark > 100) {
+      return null;
+    }
+  }
+
+  const marksArray = Object.values(student.marks);
+  const subjectEntries = Object.entries(student.marks);
+
+  // Total marks
+  const totalMarks = marksArray.reduce((sum, val) => sum + val, 0);
+
+  // Percentage
+  const subjectCount = marksArray.length;
+  const percentage = parseFloat(((totalMarks / (subjectCount * 100)) * 100).toFixed(2));
+
+  // Grade
+  let grade;
+  if (percentage >= 90) grade = "A+";
+  else if (percentage >= 80) grade = "A";
+  else if (percentage >= 70) grade = "B";
+  else if (percentage >= 60) grade = "C";
+  else if (percentage >= 40) grade = "D";
+  else grade = "F";
+
+  // Highest and lowest subjects
+  let highestSubject = subjectEntries[0][0];
+  let lowestSubject = subjectEntries[0][0];
+  let highestMark = subjectEntries[0][1];
+  let lowestMark = subjectEntries[0][1];
+
+  for (const [subject, mark] of subjectEntries) {
+    if (mark > highestMark) {
+      highestMark = mark;
+      highestSubject = subject;
+    }
+    if (mark < lowestMark) {
+      lowestMark = mark;
+      lowestSubject = subject;
+    }
+  }
+
+  // Passed and failed subjects
+  const passedSubjects = subjectEntries.filter(([_, mark]) => mark >= 40).map(([subject]) => subject);
+  const failedSubjects = subjectEntries.filter(([_, mark]) => mark < 40).map(([subject]) => subject);
+
+  return {
+    name: student.name,
+    totalMarks,
+    percentage,
+    grade,
+    highestSubject,
+    lowestSubject,
+    passedSubjects,
+    failedSubjects,
+    subjectCount
+  };
 }

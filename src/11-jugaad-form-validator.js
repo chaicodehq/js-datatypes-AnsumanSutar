@@ -62,5 +62,78 @@
  *   // => { isValid: false, errors: { name: "...", email: "...", ... } }
  */
 export function validateForm(formData) {
-  // Your code here
+  const errors = {};
+
+  // 1. Name
+  if (
+    !formData.name ||
+    typeof formData.name !== "string" ||
+    formData.name.trim().length < 2 ||
+    formData.name.trim().length > 50
+  ) {
+    errors.name = "Name must be 2-50 characters";
+  }
+
+  // 2. Email
+  if (
+    !formData.email ||
+    typeof formData.email !== "string" ||
+    formData.email.indexOf("@") === -1 ||
+    formData.email.indexOf("@") !== formData.email.lastIndexOf("@") ||
+    formData.email.indexOf(".") < formData.email.indexOf("@") + 1
+  ) {
+    errors.email = "Invalid email format";
+  }
+
+  // 3. Phone
+  if (
+    !formData.phone ||
+    typeof formData.phone !== "string" ||
+    formData.phone.length !== 10 ||
+    !"6789".includes(formData.phone.charAt(0)) ||
+    !formData.phone.split("").every((ch) => ch >= "0" && ch <= "9")
+  ) {
+    errors.phone = "Invalid Indian phone number";
+  }
+
+  // 4. Age
+  let ageVal = formData.age;
+  if (typeof ageVal === "string") {
+    ageVal = parseInt(ageVal, 10);
+  }
+  if (
+    typeof ageVal !== "number" ||
+    isNaN(ageVal) ||
+    !Number.isInteger(ageVal) ||
+    ageVal < 16 ||
+    ageVal > 100
+  ) {
+    errors.age = "Age must be an integer between 16 and 100";
+  }
+
+  // 5. Pincode
+  if (
+    !formData.pincode ||
+    typeof formData.pincode !== "string" ||
+    formData.pincode.length !== 6 ||
+    formData.pincode.startsWith("0") ||
+    !formData.pincode.split("").every((ch) => ch >= "0" && ch <= "9")
+  ) {
+    errors.pincode = "Invalid Indian pincode";
+  }
+
+  // 6. State
+  const stateVal = formData.state?.trim() ?? "";
+  if (stateVal.length === 0) {
+    errors.state = "State is required";
+  }
+
+  // 7. Agree Terms
+  if (!Boolean(formData.agreeTerms)) {
+    errors.agreeTerms = "Must agree to terms";
+  }
+
+  const isValid = Object.keys(errors).length === 0;
+
+  return { isValid, errors };
 }

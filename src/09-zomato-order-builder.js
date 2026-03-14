@@ -46,5 +46,74 @@
  *   // grandTotal: 1000 + 0 + 50 - 150 = 900
  */
 export function buildZomatoOrder(cart, coupon) {
-  // Your code here
+  // Validation
+  if (!Array.isArray(cart) || cart.length === 0) {
+    return null;
+  }
+
+  // Filter out items with qty <= 0
+  const validItems = cart.filter(item => item.qty > 0);
+
+  if (validItems.length === 0) {
+    return null;
+  }
+
+  // Build items breakdown
+  const items = validItems.map(item => {
+    const addonTotal = (item.addons || [])
+      .map(addon => {
+        const parts = addon.split(":");
+        return parts.length === 2 ? parseFloat(parts[1]) || 0 : 0;
+      })
+      .reduce((sum, val) => sum + val, 0);
+
+    const itemTotal = (item.price + addonTotal) * item.qty;
+
+    return {
+      name: item.name,
+      qty: item.qty,
+      basePrice: item.price,
+      addonTotal,
+      itemTotal
+    };
+  });
+
+  // Subtotal
+  const subtotal = items.reduce((sum, i) => sum + i.itemTotal, 0);
+
+  // Delivery fee
+  let deliveryFee = 0;
+  if (subtotal < 500) deliveryFee = 30;
+  else if (subtotal < 1000) deliveryFee = 15;
+  else deliveryFee = 0;
+
+  // GST
+  const gst = parseFloat((subtotal * 0.05).toFixed(2));
+
+  // Coupon handling
+  let discount = 0;
+  const code = coupon ? coupon.toLowerCase() : null;
+
+  if (code === "first50") {
+    discount = Math.min(subtotal * 0.5, 150);
+  } else if (code === "flat100") {
+    discount = 100;
+  } else if (code === "freeship") {
+    discount = deliveryFee;
+    deliveryFee = 0;
+  }
+
+  // Grand total
+  const grandTotal = parseFloat(
+    Math.max(subtotal + deliveryFee + gst - discount, 0).toFixed(2)
+  );
+
+  return {
+    items,
+    subtotal,
+    deliveryFee,
+    gst,
+    discount,
+    grandTotal
+  };
 }
